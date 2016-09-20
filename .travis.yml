@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: o4KCPzrPyUw9rtryWES3XOtcgn2augXy9Xgwv5OdgwFTC698b7rR3/vtoVuGvwrMuz1e0JP2ch9MwP1QyiCnYuM28dOs05sAPfiUNaTj/LkNDip6CsR4a8QhiXwIXVbtbGP5QTEer33pA3txsHrqgcA6N3+F6VkT7vFsvZ57FfvPmlFIlS8xXx0RqcTzHf3aRo+z/3/5Z/zhhAVW0zEM6CRTCLUNdmlZ7E+ZUhD+jow7QlNI057hvNjIhdNteusFJfaSg3vhWrmk6yzz1AT8QK0Jzor+BsWwrwt4upZT28elBzO8gNX1m8qfF/8AoTfBbesfj/IixSde5pB7jxJ++Usiux4LtRID8CYXXaLyTpsDMdAWL6IPlnZWyjgnyfA90BCqqbOn4Qe+/bRvxktUxZ6QD+lygImOa9yK16PNCCLT2DMIbmWrTBXSai7JoGGcElTayedakzSUC3vsb60q2P3JPS4ALNuSWeyieIdh8HH4FzGoiCEsWeKsPAg4XGMSjCwMKkEpTQfx8Vd88/cL8Zz0wbxQLMD4Zr+lILzp//G00MkdwDX7O5igxAAVFF+mKwZtW8Je8bam2OzU01ogqCxfdSdwIAfQCAPtffIFLu3rUKW9dkSpWWh05HVR6uC+sYFPChlG2l7opB4ZzNOw9/sYIRO+jBfwPDsDmGlgZqY=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/Philip-Steele-of-the-Royal-Northwest-Mounted-Police_4633
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
